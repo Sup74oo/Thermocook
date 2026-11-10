@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d50">
+<title>Mes Recettes</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Recettes">
+<style>
+:root{
+  --bg:#f7f3ec; --card:#ffffff; --ink:#24302b; --muted:#6c756f; --line:#e6dfd3;
+  --vert:#2f5d50; --vert2:#3f7a68; --vert-pale:#e3eee9; --tomate:#d9532c; --jaune:#f2c14e;
+  --tm:#1f7a8c; --tm-pale:#e1f1f4; --r:16px; --sh:0 2px 10px rgba(40,40,30,.08);
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{-webkit-text-size-adjust:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3{margin:0;line-height:1.2}
+.app{max-width:1200px;margin:0 auto;padding-bottom:84px;min-height:100vh}
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 10px calc(16px + env(safe-area-inset-left));display:flex;align-items:center;gap:10px;border-bottom:1px solid transparent}
+header.top.scrolled{border-bottom-color:var(--line)}
+header.top h1{font-size:22px;flex:1;letter-spacing:-.3px}
+.icon-btn{border:0;background:var(--card);width:42px;height:42px;border-radius:12px;box-shadow:var(--sh);display:grid;place-items:center;font-size:20px;flex:none}
+.wrap{padding:0 16px}
+.search{display:flex;gap:8px;margin:4px 0 10px}
+.search input{flex:1;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 14px;outline:none}
+.search input:focus{border-color:var(--vert2)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;white-space:nowrap;font-size:14px}
+.chip.on{background:var(--vert);border-color:var(--vert);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);border:0;padding:0;text-align:left;display:flex;flex-direction:column}
+.card .ph{aspect-ratio:16/10;background:linear-gradient(135deg,#f3d9b1,#e8a87c);display:grid;place-items:center;font-size:46px;overflow:hidden}
+.card .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.card .bd{padding:12px 14px 14px}
+.card h3{font-size:17px;margin-bottom:6px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;color:var(--muted);font-size:13.5px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--tm-pale);color:var(--tm)}
+.badge.gris{background:#eee;color:#777}
+.empty{text-align:center;color:var(--muted);padding:50px 20px}
+.empty .big{font-size:54px}
+
+/* navigation basse */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom .in{display:flex;max-width:600px;width:100%}
+nav.bottom button{flex:1;border:0;background:none;padding:9px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted)}
+nav.bottom button .i{font-size:22px;line-height:1}
+nav.bottom button.on{color:var(--vert);font-weight:700}
+nav.bottom .cnt{position:absolute;margin-left:22px;margin-top:-4px;background:var(--tomate);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 5px}
+
+/* détail */
+.hero{position:relative;aspect-ratio:16/9;max-height:52vh;width:100%;background:linear-gradient(135deg,#f3d9b1,#e8a87c);display:grid;place-items:center;font-size:70px;overflow:hidden}
+.hero img{width:100%;height:100%;object-fit:cover}
+.hero .back{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px}
+.hero .more{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px}
+.detail{display:grid;gap:16px;padding:16px}
+/* Tablettes (iPad, tablettes Android) : 2 colonnes dès 760 px */
+@media(min-width:760px){
+  html,body{font-size:17px}
+  .detail{grid-template-columns:minmax(300px,360px) 1fr;align-items:start;padding:20px 24px}
+  .detail .col-ing{position:sticky;top:calc(12px + env(safe-area-inset-top))}
+  .wrap{padding:0 24px}
+  header.top{padding-left:calc(24px + env(safe-area-inset-left));padding-right:calc(24px + env(safe-area-inset-right))}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+}
+@media(min-width:900px){ .hero{aspect-ratio:21/8} }
+/* Paysage : photo moins haute, mode cuisine photo à gauche / texte à droite */
+@media(min-width:900px) and (orientation:landscape){
+  .hero{max-height:36vh}
+  .cbody.avecimg{max-width:1280px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);column-gap:32px;align-content:start}
+  .cbody.avecimg > *{grid-column:2}
+  .cbody.avecimg > .bignum{grid-column:1/-1}
+  .cbody.avecimg > img{grid-column:1;grid-row:2/span 8;max-height:62vh;height:auto;align-self:start}
+  .cnav{max-width:1280px}
+}
+.titre h2{font-size:24px;letter-spacing:-.3px}
+.titre .st{color:var(--muted);margin-top:2px}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fact{background:var(--card);border-radius:12px;padding:8px 12px;box-shadow:var(--sh);font-size:14px}
+.fact b{display:block;font-size:16px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--card);box-shadow:var(--sh)}
+.btn.pri{background:var(--vert);color:#fff}
+.btn.tm{background:var(--tm);color:#fff}
+.btn.tm.off{background:#d7dfe1;color:#7a8a8e;box-shadow:none}
+.btn.tm.sel{background:#fff;color:var(--tm);outline:2px solid var(--tm)}
+.btn.lg{grid-column:1/-1;font-size:17px;padding:16px}
+.btn.danger{color:var(--tomate)}
+.btn.sm{padding:9px 12px;font-size:14px;border-radius:11px}
+.box{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px}
+.box h3{font-size:18px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pers{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:var(--vert-pale);border-radius:12px;padding:6px 8px}
+.pers span{flex:1;font-weight:600;text-align:center}
+.pers button{width:38px;height:38px;border-radius:10px;border:0;background:#fff;font-size:20px;font-weight:700;color:var(--vert)}
+.ing{display:flex;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.ing:first-of-type{border-top:0}
+.ing .q{min-width:86px;font-weight:700;color:var(--vert)}
+.ing .n small{display:block;color:var(--muted);font-size:12.5px}
+.sous{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 2px}
+.step{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0}
+.step .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--vert);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.step.tm6 .num{background:var(--tm)}
+.step.hors .num{background:#9aa3a0}
+.step img{width:100%;max-width:420px;border-radius:12px;margin-top:8px;display:block}
+.sec{font-size:12.5px;font-weight:700;color:var(--vert2);text-transform:uppercase;letter-spacing:.4px}
+.astuce{background:#fff7e3;border-left:4px solid var(--jaune);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:14px}
+.reglages{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rg{background:var(--tm-pale);color:#145462;border-radius:9px;padding:4px 9px;font-size:14px;font-weight:700}
+.rg.hors{background:#eceeed;color:#5d6461}
+.note-tm{background:var(--tm-pale);border-radius:12px;padding:10px 12px;font-size:14px;color:#145462;margin-bottom:8px}
+.note-tm.warn{background:#fdeee8;color:#8a3517}
+
+/* mode cuisine */
+.cook{position:fixed;inset:0;z-index:50;background:#fffdf9;display:flex;flex-direction:column}
+.cook.tmmode{background:#f6fbfc}
+.cook .ctop{display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 14px 12px}
+.cook .ctop .t{flex:1;min-width:0}
+.cook .ctop .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cook .ctop .t small{color:var(--muted)}
+.prog{height:6px;background:var(--line);margin:0 14px;border-radius:9px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--vert);transition:width .25s}
+.cook.tmmode .prog i{background:var(--tm)}
+.cbody{flex:1;overflow:auto;padding:18px 18px 10px;display:flex;flex-direction:column;gap:14px;max-width:900px;width:100%;margin:0 auto}
+.cbody .bignum{font-size:15px;font-weight:800;color:var(--vert);letter-spacing:.5px}
+.cook.tmmode .cbody .bignum{color:var(--tm)}
+.cbody .txt{font-size:clamp(20px,4.6vw,30px);line-height:1.38;font-weight:500}
+.cbody img{width:100%;max-height:38vh;object-fit:cover;border-radius:16px}
+.cbody .reglages .rg{font-size:clamp(16px,3.6vw,22px);padding:8px 14px;border-radius:12px}
+.cbody .used{display:flex;flex-wrap:wrap;gap:6px}
+.cbody .used span{background:var(--vert-pale);color:var(--vert);border-radius:9px;padding:4px 10px;font-size:15px;font-weight:600}
+.timer{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 12px;box-shadow:var(--sh);align-self:flex-start}
+.timer .tv{font-variant-numeric:tabular-nums;font-size:24px;font-weight:800;min-width:80px}
+.timer.ring{animation:ring .6s infinite alternate;background:#ffe7dc}
+@keyframes ring{to{transform:scale(1.04)}}
+.cnav{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));max-width:900px;width:100%;margin:0 auto}
+.cnav .btn{padding:18px;font-size:18px}
+.fin{text-align:center;padding:30px 10px}
+.fin .big{font-size:70px}
+
+/* courses */
+.cr-rec{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.cr-rec:first-of-type{border-top:0}
+.cr-rec .nm{flex:1;min-width:0}
+.cr-rec .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+.mini{display:flex;align-items:center;gap:4px}
+.mini button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:700}
+.item{display:flex;align-items:center;gap:12px;padding:10px 2px;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item input{width:24px;height:24px;accent-color:var(--vert);flex:none}
+.item .lab{flex:1}
+.item .lab small{display:block;color:var(--muted);font-size:12.5px}
+.item .qq{font-weight:700;color:var(--vert);text-align:right}
+.item.ok .lab,.item.ok .qq{color:#9aa3a0;text-decoration:line-through}
+.switch{display:flex;align-items:center;gap:10px;font-weight:600}
+.switch input{width:46px;height:26px;appearance:none;background:#cfd6d3;border-radius:99px;position:relative;transition:.2s;flex:none}
+.switch input:checked{background:var(--vert)}
+.switch input::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
+.switch input:checked::after{left:23px}
+.cols{display:grid;gap:14px}
+@media(min-width:760px){.cols{grid-template-columns:340px 1fr;align-items:start}}
+
+/* formulaires */
+label.f{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 4px}
+.in{width:100%;border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;outline:none}
+textarea.in{min-height:130px;resize:vertical;line-height:1.5}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.help{font-size:13px;color:var(--muted);margin-top:4px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#24302b;color:#fff;padding:10px 16px;border-radius:12px;z-index:99;font-size:14px;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.menu{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center}
+.menu .sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:10px 12px calc(16px + env(safe-area-inset-bottom));display:grid;gap:6px}
+.menu .sheet button{border:0;background:#f4f1ea;border-radius:12px;padding:14px;text-align:left;font-weight:600}
+.overlay-ing{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center}
+.overlay-ing .sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:80vh;overflow:auto;padding:16px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<nav class="bottom" id="nav"><div class="in">
+  <button data-go="liste"><span class="i">📖</span>Recettes</button>
+  <button data-go="courses"><span class="i">🛒</span>Courses<span class="cnt" id="cnt" hidden></span></button>
+  <button data-go="reglages"><span class="i">📥</span>Importer</button>
+</div></nav>
+<input type="file" id="fileJson" accept=".json,application/json,text/plain" hidden>
+<input type="file" id="fileImg" accept="image/*" hidden>
+<script src="recettes_initiales.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   Mes Recettes – appli Android (WebView) – même format que l'appli PC
+   ============================================================ */
+const PERS_DEFAUT = 4;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/œ/g, "oe").replace(/æ/g, "ae");
+const uid = () => "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const ANDROID = window.Android || null;
+
+/* ---------- Stockage (IndexedDB, plus de place que localStorage pour les photos) ---------- */
+const DB = {
+  db: null,
+  open() {
+    return new Promise((ok, ko) => {
+      const rq = indexedDB.open("mes-recettes", 1);
+      rq.onupgradeneeded = () => {
+        const d = rq.result;
+        if (!d.objectStoreNames.contains("recettes")) d.createObjectStore("recettes", {keyPath: "id"});
+        if (!d.objectStoreNames.contains("etat")) d.createObjectStore("etat");
+      };
+      rq.onsuccess = () => { this.db = rq.result; ok(); };
+      rq.onerror = () => ko(rq.error);
+    });
+  },
+  tx(store, mode, fn) {
+    return new Promise((ok, ko) => {
+      const t = this.db.transaction(store, mode); const s = t.objectStore(store);
+      const r = fn(s); t.oncomplete = () => ok(r && r.result); t.onerror = () => ko(t.error);
+    });
+  },
+  all() { return this.tx("recettes", "readonly", s => s.getAll()); },
+  put(r) { return this.tx("recettes", "readwrite", s => s.put(r)); },
+  del(id) { return this.tx("recettes", "readwrite", s => s.delete(id)); },
+  get(k) { return this.tx("etat", "readonly", s => s.get(k)); },
+  set(k, v) { return this.tx("etat", "readwrite", s => s.put(v, k)); },
+};
+
+let RECETTES = [];
+let COURSES = {liste: [], stock: {}, extras: [], masquer: true};
+let filtre = {q: "", cat: ""};
+const persAff = {};          // nombre de personnes affiché par recette
+let vueTM = {};              // recette affichée en version TM6 ?
+
+/* ---------- Quantités ---------- */
+const FRACS = {0.25: "¼", 0.5: "½", 0.75: "¾", 0.33: "⅓", 0.67: "⅔"};
+function arrondi(v, unite) {
+  const u = norm(unite);
+  if (["g", "ml"].includes(u)) return v >= 50 ? Math.round(v / 5) * 5 : Math.round(v);
+  if (["kg", "l"].includes(u)) return Math.round(v * 100) / 100;
+  if (u === "cl") return Math.round(v * 10) / 10;
+  return Math.round(v * 4) / 4;
+}
+function fmtNombre(v) {
+  const ent = Math.floor(v), dec = Math.round((v - ent) * 100) / 100;
+  if (dec === 0) return String(ent);
+  if (FRACS[dec]) return (ent ? ent + " " : "") + FRACS[dec];
+  return String(v).replace(".", ",");
+}
+function fmtQ(q, unite, facteur = 1) {
+  if (q === null || q === undefined || q === "") return "";
+  const v = arrondi(Number(q) * facteur, unite);
+  if (v <= 0) return "";
+  const n = fmtNombre(v);
+  return unite ? n + " " + unite : n;
+}
+function famille(unite) {
+  const u = norm(unite).replace(/\s|\./g, "");
+  if (u === "kg") return ["g", 1000];
+  if (u === "g") return ["g", 1];
+  if (u === "l") return ["ml", 1000];
+  if (u === "cl") return ["ml", 10];
+  if (u === "ml") return ["ml", 1];
+  if (["cs", "cas", "cuillereasoupe", "casoupe"].includes(u)) return ["c. à soupe", 1];
+  if (["cc", "cac", "cuillereacafe", "cacafe"].includes(u)) return ["c. à café", 1];
+  return [unite || "", 1];
+}
+function cleIng(nom) {
+  return norm(nom).replace(/\(.*?\)/g, "").split(/\s+/).filter(Boolean)
+    .map(w => w.length > 3 ? w.replace(/(s|x)$/, "") : w).join(" ").trim();
+}
+
+/* ---------- Analyse d'une ligne d'ingrédient (éditeur) ---------- */
+const RE_UNITE = /^(kg|g|mg|l|cl|ml|c\.?\s?à\s?s(?:oupe)?\.?|c\.?\s?à\s?c(?:afé)?\.?|cs|càs|cas|cc|càc|cac|pincées?|sachets?|cm|tranches?|boîtes?|bottes?|verres?|noix|filets?|brins?|feuilles?|pots?)(?=\s|$)/i;
+function parseLigneIng(l) {
+  let s = l.trim().replace(/^[-•*]\s*/, ""); if (!s) return null;
+  let placard = false;
+  if (/^\[placard\]/i.test(s)) { placard = true; s = s.replace(/^\[placard\]\s*/i, ""); }
+  let q = null, unite = "", nom = s, note = "";
+  const m = s.match(/^(\d+(?:[.,]\d+)?(?:\s*\/\s*\d+)?|½|¼|¾)\s*/);
+  if (m) {
+    let t = m[1].replace(",", ".");
+    q = t === "½" ? .5 : t === "¼" ? .25 : t === "¾" ? .75 : t.includes("/") ? (parseFloat(t.split("/")[0]) / parseFloat(t.split("/")[1])) : parseFloat(t);
+    s = s.slice(m[0].length);
+    const mu = s.match(RE_UNITE);
+    if (mu) {
+      unite = mu[1].toLowerCase();
+      if (/^c\.?\s?à\s?s|^cs$|^càs$|^cas$/i.test(unite)) unite = "c. à soupe";
+      if (/^c\.?\s?à\s?c|^cc$|^càc$|^cac$/i.test(unite)) unite = "c. à café";
+      s = s.slice(mu[0].length).trim();
+    }
+    s = s.replace(/^(de |d'|d’|des )/i, "");
+    nom = s;
+  }
+  const mn = nom.match(/\s*\(([^)]*)\)\s*$/);
+  if (mn) { note = mn[1]; nom = nom.slice(0, mn.index); }
+  const o = {nom: nom.trim(), quantite: q, unite};
+  if (note) o.note = note; if (placard) o.placard = true;
+  return o;
+}
+function ligneIng(i) {
+  return (i.placard ? "[placard] " : "") + (i.quantite != null ? fmtNombre(i.quantite).replace(" ", "") + " " : "") +
+    (i.unite ? i.unite + " " : "") + i.nom + (i.note ? " (" + i.note + ")" : "");
+}
+
+/* ============================================================
+   Adaptation Thermomix TM6
+   - si la recette contient « etapes_tm6 » : version vérifiée (préparée lors de l'import)
+   - sinon : adaptation automatique, étape par étape, par règles
+   ============================================================ */
+function dureeTexte(t) {
+  const m = norm(t).match(/(\d+(?:[.,]\d+)?)\s*(?:(?:a|-|à|ou)\s*(\d+(?:[.,]\d+)?))?\s*(min(?:ute)?s?|mn|h(?:eures?)?|s(?:ec(?:onde)?s?)?)\b/);
+  if (!m) return null;
+  const v = parseFloat((m[2] || m[1]).replace(",", "."));
+  const u = m[3][0] === "h" ? "h" : m[3].startsWith("s") ? "s" : "min";
+  return {v, u, txt: fmtNombre(v) + " " + u, min: u === "h" ? v * 60 : u === "s" ? v / 60 : v};
+}
+const VIANDE = /(poulet|boeuf|porc|veau|agneau|viande|canard|dinde|lardon|chorizo|saucisse|steak|hache)/;
+const DM = "Découpe-Minute (vit. 4, sans chauffe)";
+const REGLES_TM6 = [
+  // étapes qui restent hors Thermomix
+  {re: /(prechauff|enfourn|au four|gratin|grill|plaque allant|four a )/, f: () => ({hors_tm: true, conseil: "Étape au four."})},
+  {re: /(pate feuilletee|pate brisee|moule a|etalez la pate|abaisse)/, f: () => ({hors_tm: true})},
+  {re: /(oeufs?.*(au plat|poele)|poele.*oeufs?|omelette)/, f: () => ({hors_tm: true, conseil: "Œufs au plat à la poêle (le mode « Cuisson des œufs » fait les œufs à la coque, mollets ou durs)."})},
+  {re: /(oeufs?.*(a la coque|mollets?|durs?)|(coque|mollets?|durs?).*oeufs?)/, f: () => ({mode: "Cuisson des œufs", conseil: "De 2 à 6 œufs ; choisir la cuisson sur l'écran."})},
+  // découpe
+  {re: /(eplucher|epluchez|pelez|peler).*(pommes? de terre|patates?)/, f: () => ({mode: "Éplucher", accessoire: "Couvre-lame éplucheur", conseil: "800 g de pommes de terre maximum."})},
+  {re: /(spirale|spaghettis? de legumes|tagliatelles? de)/, f: () => ({mode: "Découper en spirale", accessoire: "Découpe-Spirale", conseil: "Tronçons de 10 cm maximum."})},
+  {re: /(raper|rapez|rape )/, f: (d, t) => /(parmesan|comte|gruyere|pecorino|fromage)/.test(t)
+     ? {mode: "Râper", accessoire: DM + " – face râper", conseil: "Fromage à pâte dure (parmesan) : plutôt 10 s / vit. 10, sans accessoire."}
+     : {mode: "Râper", accessoire: DM + " – face râper", conseil: "Sans Découpe-Minute : râper à la main."}},
+  {re: /(eminc|rondelles|lamelles|tranches fines)/, f: (d, t) => {
+     if (/(oignon|ail|echalote|cebette|ciboule|gingembre)/.test(t) && !/(poireau|endive|chou|fenouil|courgette|concombre|champignon|carotte|pomme)/.test(t))
+       return {mode: "Hacher", conseil: "Choisir l'ingrédient et la finesse sur l'écran (sans le mode : 5 s / vit. 5)."};
+     if (/(poulet|viande|boeuf|porc|citron)/.test(t)) return null;
+     return {mode: "Émincer", accessoire: DM + " – face trancher", conseil: "Couper en tronçons qui passent dans la goulotte. Sans Découpe-Minute : émincer à la main."};
+  }},
+  {re: /(cisel|hach)/, f: (d, t) => /(poulet|viande|boeuf|porc)/.test(t) && !/(oignon|ail|echalote|herbe|persil)/.test(t) ? null
+     : {mode: "Hacher", conseil: "Choisir l'ingrédient et la finesse sur l'écran (sans le mode : 5 s / vit. 5). Racler les parois."}},
+  // préparations
+  {re: /(mixe|mixer|velout|reduire en puree|en puree|texture homogene|lisse)/, f: d => ({mode: "Mixage", conseil: "Le mode augmente la vitesse progressivement (sans le mode : 1 min / vit. 5 → 10)."})},
+  {re: /(fouet|battez|battre|montez|monter|en neige|chantilly|blanchir)/, f: d => ({temps: d ? d.txt : "3 min", vitesse: "3.5", accessoire: "Fouet", conseil: "Ne jamais dépasser la vitesse 4 avec le fouet."})},
+  {re: /(petri|petrir|petrissez|malaxe)/, f: () => ({mode: "Pétrin"})},
+  {re: /(laisser lever|laissez lever|levee|fermente|yaourt)/, f: d => ({mode: "Fermentation", temps: d ? d.txt : ""})},
+  {re: /(sous vide|sous-vide)/, f: () => ({mode: "Sous vide", accessoire: "Couvre-lame éplucheur"})},
+  // cuissons
+  {re: /(vapeur)/, f: d => ({temps: d ? d.txt : "20 min", temperature: "Varoma", vitesse: "1", accessoire: "Varoma", conseil: "Mettre 500 g d'eau dans le bol."})},
+  {re: /(bechamel|epaissi|nappant|creme anglaise|veloute de sauce|roux)/, f: () => ({mode: "Sauce", conseil: "Le mode règle la température et la vitesse pour épaissir."})},
+  {re: /(faire fondre|faites fondre|fondre le|fondre la)/, f: (d, t) => (d && d.min > 5) ? null : /chocolat/.test(t)
+     ? {temps: "3 min", temperature: "50°C", vitesse: "2", conseil: "Hacher d'abord le chocolat 10 s / vit. 8."}
+     : {temps: "2 min", temperature: "100°C", vitesse: "1"}},
+  {re: /(riz|boulgour|quinoa|millet|epeautre)/, f: (d, t) => /(cuire|cuisson|cuisez|ebullition|eau salee)/.test(t)
+     ? {mode: "Rice cooker", accessoire: "Panier de cuisson sur le couvercle", conseil: "Le mode indique les quantités et gère la cuisson tout seul."} : null},
+  {re: /(porter a ebullition|portez a ebullition|eau salee|faites cuire (les pates|les nouilles)|cuire (les pates|les nouilles))/, f: (d, t) => /(pates|nouilles)/.test(t)
+     ? {mode: "Bouilloire", temps: d ? d.txt : "selon paquet", temperature: "100°C", vitesse: "1", sens_inverse: true, conseil: "Chauffer 1200 g d'eau salée avec le mode Bouilloire, puis cuire les pâtes 100°C / ↺ / vit. 1 (500 g maximum)."}
+     : {mode: "Bouilloire"}},
+  {re: /(faire revenir|faites revenir|faites-y revenir|rissol|faire dorer|faites dorer|suer|colorer|saisi|faites sauter|faire sauter)/, f: (d, t) => {
+     const o = {temps: d ? d.txt : "3 min", temperature: "120°C", vitesse: "1", sens_inverse: true};
+     if (VIANDE.test(t)) o.conseil = "Viande : par lots de 500 g maximum. Le TM6 ne dépasse 120°C qu'en cuisine guidée.";
+     if (d && d.min > 10) { o.temperature = "100°C"; o.conseil = "Cuisson longue : ajouter 50 g d'eau, panier de cuisson sur le couvercle."; }
+     return o;
+  }},
+  {re: /(mijot|feu doux|a couvert|couvrez|laisser cuire|laissez cuire|braiser|fondant)/, f: d => (d && d.min >= 60)
+     ? {mode: "Cuisson lente", temps: d.txt, sens_inverse: true, conseil: "Mode « Cuisson lente » : régler la durée et la température sur l'écran."}
+     : {temps: d ? d.txt : "20 min", temperature: "98°C", vitesse: "mijotage", sens_inverse: true, conseil: "Panier de cuisson sur le couvercle à la place du gobelet."}},
+  {re: /(faites cuire|faire cuire|cuisez|cuire)/, f: d => d ? {temps: d.txt, temperature: "100°C", vitesse: "1", sens_inverse: true, conseil: "Panier de cuisson sur le couvercle pour éviter les projections."} : null},
+  {re: /(rechauff)/, f: d => ({mode: "Réchauffage", conseil: "Sans le mode : " + (d ? d.txt : "3 min") + " / 90°C / ↺ / vit. 1."})},
+  {re: /(vinaigrette|emulsion|mayonnaise)/, f: () => ({temps: "10 s", vitesse: "4"})},
+  {re: /(melang|incorpor|ajoute|ajoutez|versez)/, f: () => ({temps: "20 s", vitesse: "2", sens_inverse: true})},
+];
+function adapterEtapeTM6(texte) {
+  const t = norm(texte), d = dureeTexte(texte);
+  for (const r of REGLES_TM6) {
+    if (r.re.test(t)) { const o = r.f(d, t); if (o) return Object.assign({texte}, o); }
+  }
+  return {texte};
+}
+function poidsBol(r, facteur) {
+  let tot = 0;
+  for (const i of r.ingredients || []) {
+    if (i.quantite == null) continue;
+    const [fam, k] = famille(i.unite);
+    if (fam === "g" || fam === "ml") tot += i.quantite * k * facteur;
+  }
+  return tot;
+}
+function versionTM6(r) {
+  if (Array.isArray(r.etapes_tm6) && r.etapes_tm6.length)
+    return {etapes: r.etapes_tm6, verifiee: true, remarque: r.tm6_remarque || ""};
+  const etapes = (r.etapes || []).map(e => Object.assign({section: e.section}, adapterEtapeTM6(e.texte)));
+  const reglees = etapes.filter(e => e.temps || e.temperature || e.vitesse || e.mode).length;
+  const hors = etapes.filter(e => e.hors_tm).length;
+  return {etapes, verifiee: false, reglees, hors,
+    remarque: "Adaptation automatique : vérifiez les réglages avant de lancer. Les étapes sans réglage se font à la main."};
+}
+function tm6Possible(r) {
+  if (Array.isArray(r.etapes_tm6) && r.etapes_tm6.length) return true;
+  return versionTM6(r).reglees > 0;
+}
+function reglagesHTML(e) {
+  if (e.hors_tm) return `<div class="reglages"><span class="rg hors">✋ Hors Thermomix</span></div>`;
+  const p = [];
+  if (e.mode) p.push(`<span class="rg">⚙️ Mode ${esc(e.mode)}</span>`);
+  if (e.accessoire) p.push(`<span class="rg">🔧 ${esc(e.accessoire)}</span>`);
+  if (e.temps) p.push(`<span class="rg">⏱ ${esc(e.temps)}</span>`);
+  if (e.temperature) p.push(`<span class="rg">🌡 ${esc(e.temperature)}</span>`);
+  if (e.sens_inverse) p.push(`<span class="rg">↺ Sens inverse</span>`);
+  if (e.vitesse) p.push(`<span class="rg">🌀 ${e.vitesse === "mijotage" ? "Vitesse mijotage" : "Vit. " + esc(e.vitesse)}</span>`);
+  return p.length ? `<div class="reglages">${p.join("")}</div>` : "";
+}
+
+/* ---------- Chargement ---------- */
+const IOS_WEB = !ANDROID;   // version web (iPhone) : pas de pont Android
+async function init() {
+  if (IOS_WEB) {
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost"))
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+    $("#fileJson").removeAttribute("accept");   // iOS grise parfois les .json sinon
+  }
+  await DB.open();
+  RECETTES = await DB.all() || [];
+  const dejaInit = await DB.get("initialise");
+  if (!dejaInit && window.RECETTES_INITIALES) {
+    for (const r of window.RECETTES_INITIALES.recettes) await DB.put(r);
+    RECETTES = await DB.all();
+    await DB.set("initialise", true);
+  }
+  // mise à jour des fiches fournies (champ « revision »), sauf si modifiées par l'utilisateur
+  if (window.RECETTES_INITIALES) {
+    for (const r of window.RECETTES_INITIALES.recettes) {
+      const x = RECETTES.find(y => y.id === r.id);
+      if (x && !x.modifie && (x.revision || 0) < (r.revision || 0)) await DB.put(r);
+    }
+    RECETTES = await DB.all();
+  }
+  COURSES = Object.assign(COURSES, await DB.get("courses") || {});
+  document.querySelectorAll("nav.bottom button").forEach(b => b.onclick = () => go(b.dataset.go));
+  window.addEventListener("hashchange", rendu);
+  window.addEventListener("scroll", () => { const h = $("header.top"); if (h) h.classList.toggle("scrolled", scrollY > 4); });
+  rendu();
+}
+const sauverCourses = () => { DB.set("courses", COURSES); majCompteur(); };
+const go = h => { location.hash = h; };
+const trier = () => RECETTES.sort((a, b) => a.titre.localeCompare(b.titre, "fr"));
+function toast(m) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = m;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+function majCompteur() {
+  const n = listeCourses().filter(i => !COURSES.stock[i.cle]).length;
+  const c = $("#cnt"); c.hidden = !n; c.textContent = n;
+}
+function rendu() {
+  const [page, id] = location.hash.replace(/^#/, "").split("/");
+  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("on", b.dataset.go === (page || "liste")));
+  $("#nav").style.display = page === "cuisine" ? "none" : "";
+  if (ANDROID && ANDROID.keepScreenOn) ANDROID.keepScreenOn(page === "cuisine");
+  else ecranAllume(page === "cuisine");
+  window.scrollTo(0, 0);
+  if (page === "recette") return pageRecette(id);
+  if (page === "cuisine") return pageCuisine(id);
+  if (page === "courses") return pageCourses();
+  if (page === "reglages") return pageReglages();
+  if (page === "edition") return pageEdition(id);
+  pageListe();
+  majCompteur();
+}
+let verrou = null;
+async function ecranAllume(oui) {
+  try {
+    if (oui && !verrou && navigator.wakeLock) { verrou = await navigator.wakeLock.request("screen"); verrou.addEventListener("release", () => { verrou = null; }); }
+    if (!oui && verrou) { await verrou.release(); verrou = null; }
+  } catch (e) { verrou = null; }
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && location.hash.startsWith("#cuisine")) ecranAllume(true);
+});
+const emojiCat = c => ({"Entrée": "🥗", "Plat": "🍲", "Dessert": "🍰", "Apéritif": "🥂", "Boisson": "🍹", "Sauce": "🥣", "Pain": "🥖"}[c] || "🍽️");
+const recette = id => RECETTES.find(r => r.id === id);
+
+/* ---------- Page : liste ---------- */
+function pageListe() {
+  trier();
+  const cats = [...new Set(RECETTES.map(r => r.categorie).filter(Boolean))].sort();
+  const q = norm(filtre.q);
+  const res = RECETTES.filter(r => (!filtre.cat || r.categorie === filtre.cat) &&
+    (!q || norm(r.titre + " " + (r.tags || []).join(" ") + " " + (r.ingredients || []).map(i => i.nom).join(" ")).includes(q)));
+  $("#app").innerHTML = `
+  <header class="top"><h1>Mes recettes</h1><button class="icon-btn" id="nouv" title="Nouvelle recette">＋</button></header>
+  <div class="wrap">
+    <div class="search"><input id="q" type="search" placeholder="Rechercher une recette, un ingrédient…" value="${esc(filtre.q)}"></div>
+    <div class="chips"><button class="chip ${!filtre.cat ? "on" : ""}" data-cat="">Toutes (${RECETTES.length})</button>
+      ${cats.map(c => `<button class="chip ${filtre.cat === c ? "on" : ""}" data-cat="${esc(c)}">${emojiCat(c)} ${esc(c)}</button>`).join("")}</div>
+    ${res.length ? `<div class="grid">${res.map(carte).join("")}</div>` :
+      `<div class="empty"><div class="big">🍳</div><p>${RECETTES.length ? "Aucune recette ne correspond." : "Aucune recette pour l'instant.<br>Importez un fichier de recettes depuis l'onglet « Importer »."}</p></div>`}
+  </div>`;
+  $("#q").oninput = e => { filtre.q = e.target.value; const pos = e.target.selectionStart; pageListe(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
+  document.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { filtre.cat = b.dataset.cat; pageListe(); });
+  document.querySelectorAll("[data-id]").forEach(b => b.onclick = () => go("recette/" + b.dataset.id));
+  $("#nouv").onclick = () => go("edition/nouvelle");
+}
+function carte(r) {
+  const tps = r.temps_total || ((r.temps_preparation || 0) + (r.temps_cuisson || 0));
+  return `<button class="card" data-id="${esc(r.id)}">
+    <div class="ph">${r.image ? `<img loading="lazy" src="${r.image}" alt="">` : emojiCat(r.categorie)}</div>
+    <div class="bd"><h3>${esc(r.titre)}</h3>
+      <div class="meta">${tps ? `<span>⏱ ${tps} min</span>` : ""}<span>👥 ${PERS_DEFAUT} pers.</span>${r.categorie ? `<span>${esc(r.categorie)}</span>` : ""}
+      ${tm6Possible(r) ? `<span class="badge">TM6${r.etapes_tm6 && r.etapes_tm6.length ? " ✓" : ""}</span>` : ""}</div></div>
+  </button>`;
+}
+
+/* ---------- Page : recette ---------- */
+function facteurDe(r) { return (persAff[r.id] || PERS_DEFAUT) / (r.personnes || PERS_DEFAUT); }
+function listeIngHTML(r, f) {
+  const base = (r.ingredients || []).filter(i => !i.placard), plac = (r.ingredients || []).filter(i => i.placard);
+  const li = i => `<div class="ing"><div class="q">${esc(fmtQ(i.quantite, i.unite, f)) || "—"}</div><div class="n">${esc(i.nom)}${i.note ? `<small>${esc(i.note)}</small>` : ""}</div></div>`;
+  return base.map(li).join("") + (plac.length ? `<div class="sous">Dans le placard</div>` + plac.map(li).join("") : "");
+}
+function pageRecette(id) {
+  const r = recette(id); if (!r) return go("liste");
+  const p = persAff[id] || PERS_DEFAUT, f = facteurDe(r);
+  const tm = !!vueTM[id], possible = tm6Possible(r), v = tm ? versionTM6(r) : null;
+  const etapes = tm ? v.etapes : (r.etapes || []);
+  const dansListe = COURSES.liste.some(x => x.id === id);
+  let secPrec = null;
+  $("#app").innerHTML = `
+  <div class="hero">${r.image ? `<img src="${r.image}" alt="">` : emojiCat(r.categorie)}
+    <button class="icon-btn back" id="retour">←</button><button class="icon-btn more" id="plus">⋯</button></div>
+  <div class="detail">
+    <div class="col-ing" style="display:grid;gap:14px">
+      <div class="titre"><h2>${esc(r.titre)}</h2>${r.sous_titre ? `<div class="st">${esc(r.sous_titre)}</div>` : ""}
+        <div class="facts">
+          ${r.temps_preparation ? `<div class="fact">Préparation<b>${r.temps_preparation} min</b></div>` : ""}
+          ${r.temps_cuisson ? `<div class="fact">Cuisson<b>${r.temps_cuisson} min</b></div>` : ""}
+          ${r.temps_total ? `<div class="fact">À table dans<b>${r.temps_total} min</b></div>` : ""}
+          ${r.calories ? `<div class="fact">Énergie<b>${r.calories} kcal</b></div>` : ""}
+          ${r.difficulte ? `<div class="fact">Difficulté<b>${esc(r.difficulte)}</b></div>` : ""}
+        </div></div>
+      <div class="actions">
+        <button class="btn pri lg" id="lancer">▶ Lancer la recette${tm ? " (TM6)" : ""}</button>
+        <button class="btn tm ${possible ? (tm ? "sel" : "") : "off"}" id="tm6">${tm ? "↩ Version classique" : "Ⓣ Version TM6"}</button>
+        <button class="btn" id="aux">${dansListe ? "✓ Dans les courses" : "🛒 Aux courses"}</button>
+      </div>
+      <div class="box"><h3>🧺 Ingrédients</h3>
+        <div class="pers"><button id="moins">−</button><span>${p} personne${p > 1 ? "s" : ""}</span><button id="plusp">+</button></div>
+        ${listeIngHTML(r, f)}
+        ${r.ustensiles ? `<div class="sous">Ustensiles</div><div style="font-size:14px">${esc(r.ustensiles)}</div>` : ""}
+      </div>
+    </div>
+    <div style="display:grid;gap:14px">
+      <div class="box"><h3>${tm ? "Ⓣ Étapes Thermomix TM6" : "👩‍🍳 Étapes"}</h3>
+        ${tm ? `<div class="note-tm ${v.verifiee ? "" : "warn"}">${v.verifiee ? "✓ Version TM6 préparée à l'import." : "⚙️"} ${esc(v.remarque)}${p !== (r.personnes || 4) ? " Les réglages sont prévus pour " + (r.personnes || 4) + " personnes." : ""}</div>` : ""}
+        ${tm && poidsBol(r, f) > 2000 ? `<div class="note-tm warn">⚠️ Environ ${Math.round(poidsBol(r, f) / 100) / 10} kg d'ingrédients : le bol du TM6 contient 2,2 L. Prévoyez deux fournées si nécessaire.</div>` : ""}
+        ${etapes.map((e, i) => { const s = e.section && e.section !== secPrec ? `<div class="sous">${esc(e.section)}</div>` : ""; secPrec = e.section;
+          return s + `<div class="step ${tm ? "tm6" : ""} ${e.hors_tm ? "hors" : ""}"><div class="num">${i + 1}</div><div style="flex:1">
+            <div>${esc(e.texte)}</div>${tm ? reglagesHTML(e) : ""}
+            ${e.conseil ? `<div class="astuce">💡 ${esc(e.conseil)}</div>` : ""}${e.astuce ? `<div class="astuce">💡 ${esc(e.astuce)}</div>` : ""}
+            ${!tm && e.image ? `<img loading="lazy" src="${e.image}" alt="">` : ""}</div></div>`; }).join("")}
+      </div>
+      ${r.notes ? `<div class="box"><h3>📝 Notes</h3><div>${esc(r.notes)}</div></div>` : ""}
+      ${r.source ? `<div class="help" style="padding:0 4px 10px">Source : ${esc(r.source)}</div>` : ""}
+    </div>
+  </div>`;
+  $("#retour").onclick = () => go("liste");
+  $("#lancer").onclick = () => go("cuisine/" + id);
+  $("#tm6").onclick = () => { if (!possible) return toast("Cette recette n'a pas d'étape adaptable au Thermomix."); vueTM[id] = !tm; pageRecette(id); };
+  $("#aux").onclick = () => { ajouterAuxCourses(id, p); pageRecette(id); };
+  $("#moins").onclick = () => { persAff[id] = Math.max(1, p - 1); pageRecette(id); };
+  $("#plusp").onclick = () => { persAff[id] = Math.min(20, p + 1); pageRecette(id); };
+  $("#plus").onclick = () => menu([
+    ["✏️ Modifier la recette", () => go("edition/" + id)],
+    ["📤 Exporter cette recette", () => exporter([r], nomFichier(r.titre))],
+    ["🗑️ Supprimer la recette", async () => { if (confirm("Supprimer « " + r.titre + " » ?")) { await DB.del(id); RECETTES = RECETTES.filter(x => x.id !== id); COURSES.liste = COURSES.liste.filter(x => x.id !== id); sauverCourses(); go("liste"); } }],
+  ]);
+}
+function menu(items) {
+  const m = document.createElement("div"); m.className = "menu";
+  m.innerHTML = `<div class="sheet">${items.map((it, i) => `<button data-i="${i}">${it[0]}</button>`).join("")}<button data-i="x" style="text-align:center">Annuler</button></div>`;
+  m.onclick = e => { const b = e.target.closest("button"); if (e.target === m || b) m.remove(); if (b && b.dataset.i !== "x") items[+b.dataset.i][1](); };
+  document.body.appendChild(m);
+}
+
+/* ---------- Mode cuisine : une étape par page ---------- */
+let cuisine = {id: null, i: 0, timer: null, reste: 0};
+const MOTS_VIDES = new Set(["gousse", "filet", "sachet", "tranche", "boite", "brin", "feuille", "morceau", "pot", "noix", "pincee", "sans", "avec", "pour", "ou", "de", "du", "des", "la", "le", "les", "au", "aux", "et"]);
+const GENERIQUES = new Set(["sauce", "huile", "pate", "creme", "jus", "poudre", "bouillon", "fond"]);
+function motsIng(nom) {
+  return cleIng(nom).replace(/[’']/g, " ").split(" ").filter(w => w.length >= 3 && !MOTS_VIDES.has(w));
+}
+function ingredientsDeLEtape(r, texte, f) {
+  const t = " " + norm(texte).replace(/[’']/g, " ").replace(/[^a-z0-9 ]/g, " ") + " ";
+  const has = w => t.includes(" " + w);
+  const cand = [];
+  for (const i of r.ingredients || []) {
+    const m = motsIng(i.nom); if (!m.length || !has(m[0])) continue;
+    if (GENERIQUES.has(m[0]) && m.length > 1 && !has(m[1])) continue;   // « sauce satay » ≠ « sauce soja »
+    cand.push({i, tete: m[0], score: m.filter(has).length / m.length});
+  }
+  const best = {}; for (const c of cand) best[c.tete] = Math.max(best[c.tete] || 0, c.score);
+  return cand.filter(c => c.score === best[c.tete]).map(c => c.i)
+    .map(i => (fmtQ(i.quantite, i.unite, f) ? fmtQ(i.quantite, i.unite, f) + " " : "") + i.nom);
+}
+function pageCuisine(id) {
+  const r = recette(id); if (!r) return go("liste");
+  if (cuisine.id !== id) { stopTimer(); cuisine = {id, i: 0, timer: null, reste: 0}; }
+  const tm = !!vueTM[id], f = facteurDe(r);
+  const etapes = tm ? versionTM6(r).etapes : (r.etapes || []);
+  const n = etapes.length, i = Math.min(cuisine.i, n);
+  const fini = i >= n, e = etapes[i] || {};
+  const d = !fini ? (e.duree ? {min: e.duree, txt: e.duree + " min"} : dureeTexte(e.temps || e.texte)) : null;
+  const used = !fini ? ingredientsDeLEtape(r, e.texte, f) : [];
+  $("#app").innerHTML = `<div class="cook ${tm ? "tmmode" : ""}">
+    <div class="ctop"><button class="icon-btn" id="quit">✕</button>
+      <div class="t"><b>${esc(r.titre)}</b><small>${tm ? "Thermomix TM6 · " : ""}${persAff[id] || PERS_DEFAUT} pers.</small></div>
+      <button class="icon-btn" id="ings" title="Ingrédients">🧺</button>
+      <button class="icon-btn" id="bascule" title="Basculer classique / TM6" style="color:var(--tm);font-weight:800">${tm ? "↩" : "Ⓣ"}</button></div>
+    <div class="prog"><i style="width:${n ? Math.round(Math.min(i + (fini ? 0 : 1), n) / n * 100) : 0}%"></i></div>
+    <div class="cbody ${!fini && !tm && e.image ? "avecimg" : ""}">${fini ? `<div class="fin"><div class="big">🎉</div><h2>Bon appétit !</h2><p class="help">Toutes les étapes sont terminées.</p></div>` : `
+      <div class="bignum">ÉTAPE ${i + 1} / ${n}${e.section ? " · " + esc(e.section).toUpperCase() : ""}</div>
+      ${!tm && e.image ? `<img src="${e.image}" alt="">` : ""}
+      <div class="txt">${esc(e.texte)}</div>
+      ${tm ? reglagesHTML(e) : ""}
+      ${used.length ? `<div class="used">${used.map(u => `<span>${esc(u)}</span>`).join("")}</div>` : ""}
+      ${e.conseil ? `<div class="astuce">💡 ${esc(e.conseil)}</div>` : ""}${e.astuce ? `<div class="astuce">💡 ${esc(e.astuce)}</div>` : ""}
+      ${d && d.min >= 1 ? `<div class="timer" id="timer"><span>⏲</span><span class="tv" id="tv">${fmtTemps(cuisine.timer ? cuisine.reste : Math.round(d.min * 60))}</span>
+        <button class="btn sm" id="tgo">${cuisine.timer ? "Arrêter" : "Minuteur " + esc(d.txt)}</button></div>` : ""}`}
+    </div>
+    <div class="cnav">
+      <button class="btn" id="prec" ${i === 0 ? "disabled style='opacity:.4'" : ""}>← Précédent</button>
+      ${fini ? `<button class="btn pri" id="term">Terminer</button>` : `<button class="btn ${tm ? "tm" : "pri"}" id="suiv">${i === n - 1 ? "Terminer ✓" : "Suivant →"}</button>`}
+    </div></div>`;
+  $("#quit").onclick = () => { stopTimer(); cuisine.id = null; go("recette/" + id); };
+  $("#bascule").onclick = () => { if (!tm && !tm6Possible(r)) return toast("Pas de version TM6 possible pour cette recette."); vueTM[id] = !tm; cuisine.i = 0; stopTimer(); pageCuisine(id); };
+  $("#ings").onclick = () => {
+    const o = document.createElement("div"); o.className = "overlay-ing";
+    o.innerHTML = `<div class="sheet"><h3 style="margin-bottom:8px">🧺 Ingrédients · ${persAff[id] || PERS_DEFAUT} pers.</h3>${listeIngHTML(r, f)}<button class="btn" style="width:100%;margin-top:12px">Fermer</button></div>`;
+    o.onclick = ev => { if (ev.target === o || ev.target.tagName === "BUTTON") o.remove(); };
+    document.body.appendChild(o);
+  };
+  if ($("#prec")) $("#prec").onclick = () => { if (cuisine.i > 0) { cuisine.i--; stopTimer(); pageCuisine(id); } };
+  if ($("#suiv")) $("#suiv").onclick = () => { cuisine.i++; stopTimer(); pageCuisine(id); };
+  if ($("#term")) $("#term").onclick = () => { cuisine.id = null; go("recette/" + id); };
+  if ($("#tgo")) $("#tgo").onclick = () => { if (cuisine.timer) { stopTimer(); pageCuisine(id); } else startTimer(Math.round(d.min * 60), id); };
+  // balayage gauche/droite
+  let x0 = null; const cb = $(".cbody");
+  cb.addEventListener("touchstart", ev => x0 = ev.touches[0].clientX, {passive: true});
+  cb.addEventListener("touchend", ev => { if (x0 === null) return; const dx = ev.changedTouches[0].clientX - x0; x0 = null;
+    if (dx < -70 && $("#suiv")) $("#suiv").click(); if (dx > 70 && $("#prec") && cuisine.i > 0) $("#prec").click(); }, {passive: true});
+}
+const fmtTemps = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+let AUDIO = null;
+function audioPret() {
+  try { AUDIO = AUDIO || new (window.AudioContext || window.webkitAudioContext)(); if (AUDIO.state === "suspended") AUDIO.resume(); } catch (e) {}
+}
+function startTimer(sec, id) {
+  audioPret();
+  stopTimer(); cuisine.reste = sec;
+  cuisine.timer = setInterval(() => {
+    cuisine.reste--; const tv = $("#tv"); if (tv) tv.textContent = fmtTemps(Math.max(0, cuisine.reste));
+    if (cuisine.reste <= 0) { clearInterval(cuisine.timer); cuisine.timer = null; sonner(); const t = $("#timer"); if (t) t.classList.add("ring"); const b = $("#tgo"); if (b) b.textContent = "Terminé !"; }
+  }, 1000);
+  pageCuisine(id);
+}
+function stopTimer() { if (cuisine.timer) clearInterval(cuisine.timer); cuisine.timer = null; }
+function sonner() {
+  try { navigator.vibrate && navigator.vibrate([400, 200, 400, 200, 400]); } catch (e) {}
+  try { audioPret(); const ac = AUDIO;
+    [0, .5, 1].forEach(t => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+      g.gain.setValueAtTime(.3, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + t + .4); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + .4); });
+  } catch (e) {}
+}
+
+/* ---------- Courses ---------- */
+function ajouterAuxCourses(id, pers) {
+  const x = COURSES.liste.find(x => x.id === id);
+  if (x) { COURSES.liste = COURSES.liste.filter(y => y.id !== id); toast("Retirée de la liste de courses"); }
+  else { COURSES.liste.push({id, personnes: pers || PERS_DEFAUT}); toast("Ajoutée à la liste de courses"); }
+  sauverCourses();
+}
+function listeCourses() {
+  const m = new Map();
+  for (const it of COURSES.liste) {
+    const r = recette(it.id); if (!r) continue;
+    const f = it.personnes / (r.personnes || PERS_DEFAUT);
+    for (const i of r.ingredients || []) {
+      const [fam, k] = famille(i.unite);
+      const cle = cleIng(i.nom) + "|" + norm(fam);
+      if (!m.has(cle)) m.set(cle, {cle, nom: i.nom, unite: fam, quantite: null, recettes: [], placard: !!i.placard, sansQ: false});
+      const e = m.get(cle);
+      if (i.quantite != null) e.quantite = (e.quantite || 0) + i.quantite * k * f; else e.sansQ = true;
+      if (!e.recettes.includes(r.titre)) e.recettes.push(r.titre);
+      e.placard = e.placard && !!i.placard;
+    }
+  }
+  for (const x of COURSES.extras) m.set("extra|" + x.nom, {cle: "extra|" + x.nom, nom: x.nom, unite: "", quantite: null, recettes: ["ajout manuel"], extra: true});
+  const out = [...m.values()];
+  for (const e of out) if (e.quantite != null) {
+    if (e.unite === "g" && e.quantite >= 1000) { e.quantite /= 1000; e.unite = "kg"; }
+    if (e.unite === "ml" && e.quantite >= 1000) { e.quantite /= 1000; e.unite = "l"; }
+  }
+  return out.sort((a, b) => (a.placard - b.placard) || a.nom.localeCompare(b.nom, "fr"));
+}
+function pageCourses() {
+  const items = listeCourses();
+  const manquants = items.filter(i => !COURSES.stock[i.cle]), dispo = items.filter(i => COURSES.stock[i.cle]);
+  const itemHTML = i => `<label class="item ${COURSES.stock[i.cle] ? "ok" : ""}"><input type="checkbox" data-cle="${esc(i.cle)}" ${COURSES.stock[i.cle] ? "checked" : ""}>
+    <div class="lab">${esc(i.nom)}<small>${esc(i.recettes.join(" · "))}</small></div>
+    <div class="qq">${i.quantite != null ? esc(fmtQ(i.quantite, i.unite)) : ""}${i.sansQ && i.quantite != null ? " +" : ""}</div></label>`;
+  const groupe = (arr, titre) => arr.length ? `<div class="sous">${titre}</div>` + arr.map(itemHTML).join("") : "";
+  $("#app").innerHTML = `
+  <header class="top"><h1>Courses</h1><button class="icon-btn" id="copier" title="Copier la liste">📋</button></header>
+  <div class="wrap cols">
+    <div class="box"><h3>🍽️ Recettes prévues</h3>
+      ${COURSES.liste.length ? COURSES.liste.map(x => { const r = recette(x.id); return r ? `<div class="cr-rec"><div class="nm"><b>${esc(r.titre)}</b></div>
+        <div class="mini"><button data-m="${esc(x.id)}">−</button><span style="min-width:44px;text-align:center">${x.personnes} p.</span><button data-p="${esc(x.id)}">+</button><button data-x="${esc(x.id)}" title="Retirer">✕</button></div></div>` : ""; }).join("")
+        : `<p class="help">Aucune recette. Ouvrez une recette et touchez « 🛒 Aux courses ».</p>`}
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input class="in" id="extra" placeholder="Ajouter un article (ex. papier toilette)"><button class="btn sm pri" id="addx">＋</button></div>
+      ${COURSES.liste.length || COURSES.extras.length ? `<button class="btn sm danger" id="vider" style="margin-top:12px;width:100%">Vider la liste</button>` : ""}
+    </div>
+    <div class="box">
+      <h3 style="justify-content:space-between">🛒 À acheter <span class="badge" style="background:var(--vert-pale);color:var(--vert)">${manquants.length} manquant${manquants.length > 1 ? "s" : ""}</span></h3>
+      <label class="switch"><input type="checkbox" id="masq" ${COURSES.masquer ? "checked" : ""}> N'afficher que les ingrédients manquants</label>
+      <p class="help">Cochez ce que vous avez déjà : l'ingrédient sort de la liste.</p>
+      ${items.length ? "" : `<div class="empty" style="padding:24px"><div class="big">🧺</div>Liste vide</div>`}
+      ${groupe(manquants.filter(i => !i.placard), "Manquants")}
+      ${groupe(manquants.filter(i => i.placard), "Placard (à vérifier)")}
+      ${!COURSES.masquer ? groupe(dispo, "Déjà à la maison ✓") : (dispo.length ? `<p class="help">${dispo.length} ingrédient(s) déjà à la maison, masqué(s).</p>` : "")}
+    </div>
+  </div>`;
+  document.querySelectorAll("[data-cle]").forEach(c => c.onchange = () => {
+    if (c.checked) COURSES.stock[c.dataset.cle] = true; else delete COURSES.stock[c.dataset.cle];
+    sauverCourses(); setTimeout(pageCourses, 180);
+  });
+  $("#masq").onchange = e => { COURSES.masquer = e.target.checked; sauverCourses(); pageCourses(); };
+  document.querySelectorAll("[data-m],[data-p],[data-x]").forEach(b => b.onclick = () => {
+    const id = b.dataset.m || b.dataset.p || b.dataset.x, x = COURSES.liste.find(y => y.id === id);
+    if (b.dataset.x) COURSES.liste = COURSES.liste.filter(y => y.id !== id);
+    else x.personnes = Math.max(1, Math.min(20, x.personnes + (b.dataset.p ? 1 : -1)));
+    sauverCourses(); pageCourses();
+  });
+  $("#addx").onclick = () => { const v = $("#extra").value.trim(); if (v) { COURSES.extras.push({nom: v}); sauverCourses(); pageCourses(); } };
+  $("#extra").onkeydown = e => { if (e.key === "Enter") $("#addx").click(); };
+  if ($("#vider")) $("#vider").onclick = () => { if (confirm("Vider la liste de courses ?")) { COURSES.liste = []; COURSES.extras = []; COURSES.stock = {}; sauverCourses(); pageCourses(); } };
+  $("#copier").onclick = () => {
+    const txt = "Courses :\n" + manquants.map(i => "☐ " + i.nom + (i.quantite != null ? " – " + fmtQ(i.quantite, i.unite) : "")).join("\n");
+    copier(txt);
+  };
+}
+function copier(txt) {
+  if (ANDROID && ANDROID.copyText) { ANDROID.copyText(txt); return toast("Liste copiée"); }
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Liste copiée"),
+    () => navigator.share ? navigator.share({text: txt}).catch(() => {}) : prompt("Copiez la liste :", txt));
+}
+
+/* ---------- Import / export ---------- */
+const nomFichier = t => norm(t).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) + ".json";
+function exporter(liste, nom) {
+  const txt = JSON.stringify({format: "mes-recettes", version: 1, recettes: liste});
+  if (ANDROID && ANDROID.saveFile) { const ok = ANDROID.saveFile(nom, txt); return toast(ok ? "Enregistré dans Téléchargements : " + nom : "Échec de l'enregistrement"); }
+  try {
+    const f = new File([txt], nom, {type: "application/json"});
+    if (navigator.canShare && navigator.canShare({files: [f]})) {
+      navigator.share({files: [f], title: nom}).catch(() => {});
+      return;
+    }
+  } catch (e) {}
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], {type: "application/json"})); a.download = nom;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+async function importerTexte(txt) {
+  let data; try { data = JSON.parse(txt); } catch (e) { return toast("Fichier illisible (JSON attendu)."); }
+  const liste = Array.isArray(data) ? data : (data.recettes || (data.titre ? [data] : []));
+  let n = 0, maj = 0;
+  for (const r of liste) {
+    if (!r || !r.titre) continue;
+    r.id = r.id || uid(); r.ingredients = r.ingredients || []; r.etapes = r.etapes || [];
+    if (recette(r.id)) maj++; else n++;
+    await DB.put(r);
+  }
+  RECETTES = await DB.all();
+  toast(`${n} recette(s) ajoutée(s)${maj ? ", " + maj + " mise(s) à jour" : ""}.`);
+  pageReglages();
+}
+function pageReglages() {
+  $("#app").innerHTML = `
+  <header class="top"><h1>Importer & sauvegarder</h1></header>
+  <div class="wrap" style="display:grid;gap:14px;max-width:760px">
+    <div class="box"><h3>📥 Importer des recettes</h3>
+      <p>Choisissez un fichier <b>.json</b> de recettes (celui préparé à partir de vos scans, ou une sauvegarde de l'appli PC). Les recettes déjà présentes sont mises à jour.</p>
+      <button class="btn pri" id="imp" style="width:100%">Choisir un fichier…</button></div>
+    <div class="box"><h3>✍️ Saisir une recette à la main</h3>
+      <p>Pour une recette sans fiche : titre, photo, ingrédients et étapes.</p>
+      <button class="btn" id="nouv" style="width:100%">Nouvelle recette</button></div>
+    <div class="box"><h3>📤 Sauvegarder / transférer vers le PC</h3>
+      <p>Exporte toutes les recettes (${RECETTES.length}) dans un seul fichier, à importer sur un autre appareil ou à garder en sauvegarde.${IOS_WEB ? " Sur iPhone, choisissez « Enregistrer dans Fichiers ». Faites-le de temps en temps : c'est votre sauvegarde." : ""}</p>
+      <button class="btn" id="exp" style="width:100%">Exporter toutes les recettes</button></div>
+    <div class="box"><h3>ℹ️ Format</h3><p class="help">Format « mes-recettes » v1, identique sur PC et Android. Quantités affichées par défaut pour ${PERS_DEFAUT} personnes.</p></div>
+  </div>`;
+  $("#imp").onclick = () => { const f = $("#fileJson"); f.value = ""; f.onchange = () => { const fl = f.files[0]; if (!fl) return; const rd = new FileReader(); rd.onload = () => importerTexte(rd.result); rd.readAsText(fl, "utf-8"); }; f.click(); };
+  $("#exp").onclick = () => exporter(RECETTES, "mes-recettes-" + new Date().toISOString().slice(0, 10) + ".json");
+  $("#nouv").onclick = () => go("edition/nouvelle");
+}
+
+/* ---------- Éditeur ---------- */
+function compresserImage(file) {
+  return new Promise((ok, ko) => {
+    const rd = new FileReader();
+    rd.onload = () => { const im = new Image(); im.onload = () => {
+      const k = Math.min(1, 1024 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); ok(c.toDataURL("image/jpeg", .82)); };
+      im.onerror = ko; im.src = rd.result; };
+    rd.readAsDataURL(file);
+  });
+}
+function pageEdition(id) {
+  const nouvelle = id === "nouvelle";
+  const r = nouvelle ? {id: uid(), titre: "", categorie: "Plat", personnes: 4, ingredients: [], etapes: [], image: ""} : JSON.parse(JSON.stringify(recette(id) || {}));
+  if (!r.id) return go("liste");
+  let image = r.image || "";
+  let sec = null;
+  const etapesTxt = (r.etapes || []).map(e => { let s = ""; if (e.section && e.section !== sec) { s = "# " + e.section + "\n"; sec = e.section; } return s + e.texte; }).join("\n");
+  $("#app").innerHTML = `
+  <header class="top"><button class="icon-btn" id="ann">←</button><h1>${nouvelle ? "Nouvelle recette" : "Modifier"}</h1><button class="btn sm pri" id="ok">Enregistrer</button></header>
+  <div class="wrap" style="max-width:820px;padding-bottom:30px">
+    <div class="box">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div id="apercu" style="width:110px;height:80px;border-radius:12px;background:#eee center/cover;flex:none;${image ? `background-image:url('${image}')` : ""}"></div>
+        <button class="btn sm" id="photo">📷 Photo…</button>${image ? `<button class="btn sm danger" id="sansphoto">Retirer</button>` : ""}</div>
+      <label class="f">Titre</label><input class="in" id="t" value="${esc(r.titre)}">
+      <div class="row">
+        <div><label class="f">Catégorie</label><input class="in" id="c" list="cats" value="${esc(r.categorie || "")}">
+          <datalist id="cats">${["Entrée", "Plat", "Dessert", "Apéritif", "Sauce", "Pain", "Boisson"].map(c => `<option>${c}</option>`).join("")}</datalist></div>
+        <div><label class="f">Recette pour (pers.)</label><input class="in" id="p" type="number" min="1" value="${r.personnes || 4}"></div>
+        <div><label class="f">Préparation (min)</label><input class="in" id="tp" type="number" min="0" value="${r.temps_preparation || ""}"></div>
+        <div><label class="f">Cuisson (min)</label><input class="in" id="tc" type="number" min="0" value="${r.temps_cuisson || ""}"></div>
+      </div>
+      <label class="f">Ingrédients (un par ligne)</label>
+      <textarea class="in" id="ing" placeholder="400 g effiloché de porc&#10;2 oignon jaune&#10;1 c. à café sucre&#10;[placard] sel">${esc((r.ingredients || []).map(ligneIng).join("\n"))}</textarea>
+      <div class="help">Quantité, unité puis nom. Préfixe « [placard] » pour sel, poivre, huile… Les quantités seront recalculées pour ${PERS_DEFAUT} personnes à l'affichage.</div>
+      <label class="f">Étapes (une par ligne)</label>
+      <textarea class="in" id="et" style="min-height:200px" placeholder="# 1. Les légumes&#10;Émincez l'oignon.&#10;Faites revenir 5 min.">${esc(etapesTxt)}</textarea>
+      <div class="help">Une ligne commençant par « # » crée une partie (ex. « # 2. La sauce »).</div>
+      <label class="f">Notes</label><textarea class="in" id="no" style="min-height:70px">${esc(r.notes || "")}</textarea>
+      ${r.etapes_tm6 && r.etapes_tm6.length ? `<label class="switch" style="margin-top:12px"><input type="checkbox" id="garde" checked> Garder la version TM6 préparée à l'import</label>` : ""}
+    </div>
+  </div>`;
+  $("#ann").onclick = () => history.back();
+  $("#photo").onclick = () => { const f = $("#fileImg"); f.value = ""; f.onchange = async () => { if (!f.files[0]) return; image = await compresserImage(f.files[0]); $("#apercu").style.backgroundImage = `url('${image}')`; }; f.click(); };
+  if ($("#sansphoto")) $("#sansphoto").onclick = () => { image = ""; $("#apercu").style.backgroundImage = ""; };
+  $("#ok").onclick = async () => {
+    const titre = $("#t").value.trim(); if (!titre) return toast("Le titre est obligatoire.");
+    const etapes = []; let s = null;
+    for (const l of $("#et").value.split("\n")) { const x = l.trim(); if (!x) continue; if (x.startsWith("#")) { s = x.replace(/^#+\s*/, ""); continue; }
+      const anc = (r.etapes || []).find(e => e.texte === x); etapes.push(Object.assign({}, anc || {}, {texte: x, section: s || undefined})); }
+    Object.assign(r, {titre, image, categorie: $("#c").value.trim(), personnes: Math.max(1, +$("#p").value || 4),
+      temps_preparation: +$("#tp").value || 0, temps_cuisson: +$("#tc").value || 0,
+      ingredients: $("#ing").value.split("\n").map(parseLigneIng).filter(Boolean), etapes, notes: $("#no").value.trim()});
+    if (r.temps_total && (r.temps_preparation || r.temps_cuisson)) r.temps_total = Math.max(r.temps_total, r.temps_preparation + r.temps_cuisson);
+    r.modifie = true;
+    if ($("#garde") && !$("#garde").checked) delete r.etapes_tm6;
+    await DB.put(r); RECETTES = await DB.all(); toast("Recette enregistrée"); go("recette/" + r.id);
+  };
+}
+
+init().catch(e => { document.body.innerHTML = "<p style='padding:20px'>Erreur au démarrage : " + esc(e && e.message) + "</p>"; });
+</script>
+</body>
+</html>
