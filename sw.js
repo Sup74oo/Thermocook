@@ -2,7 +2,7 @@
    Les fichiers de l'appli sont servis depuis le cache, puis mis à jour en arrière-plan
    (la nouvelle version s'applique au lancement suivant). Les recettes, elles, sont
    stockées sur le téléphone (IndexedDB) et ne passent jamais par Internet. */
-const CACHE = "mesrecettes-v3";  // ne touche qu'aux caches de cette appli (plusieurs applis peuvent partager github.io)
+const CACHE = "mesrecettes-v4";  // ne touche qu'aux caches de cette appli (plusieurs applis peuvent partager github.io)
 const FICHIERS = ["./", "index.html", "recettes_initiales.js", "manifest.webmanifest",
                   "apple-touch-icon.png", "icone-192.png", "icone-512.png"];
 

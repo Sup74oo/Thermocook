@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2f5d50">
+<meta name="theme-color" content="#F2F2F7">
 <title>Mes Recettes</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -50,7 +50,7 @@ header.top h1{font-size:22px;flex:1;letter-spacing:-.3px}
 
 /* navigation basse */
 nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
-nav.bottom .in{display:flex;max-width:600px;width:100%}
+nav.bottom .nav-in{display:flex;max-width:600px;width:100%}
 nav.bottom button{flex:1;border:0;background:none;padding:9px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted)}
 nav.bottom button .i{font-size:22px;line-height:1}
 nav.bottom button.on{color:var(--vert);font-weight:700}
@@ -180,11 +180,91 @@ textarea.in{min-height:130px;resize:vertical;line-height:1.5}
 .menu .sheet button{border:0;background:#f4f1ea;border-radius:12px;padding:14px;text-align:left;font-weight:600}
 .overlay-ing{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center}
 .overlay-ing .sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:80vh;overflow:auto;padding:16px}
+
+/* =====================================================================
+   Thème « style Apple » (même palette que apple_theme.py de l'appli PC)
+   ===================================================================== */
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --ink:#1D1D1F; --muted:#86868B; --line:#E5E5EA;
+  --vert:#0A84FF; --vert2:#0071E3; --vert-pale:#E5F0FF; --tomate:#FF3B30; --jaune:#FFCC00;
+  --tm:#30B0C7; --tm-pale:#E2F4F7; --r:14px;
+  --sh:0 1px 2px rgba(0,0,0,.04), 0 0 0 .5px rgba(0,0,0,.05);
+  --verre:rgba(242,242,247,.82);
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif;letter-spacing:-.01em}
+/* grand titre + barre translucide */
+header.top{background:var(--verre);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
+header.top h1{font-size:30px;font-weight:700;letter-spacing:-.4px}
+header.top.scrolled{border-bottom-color:rgba(0,0,0,.08)}
+.icon-btn{background:#E8E8ED;box-shadow:none;color:var(--vert);border-radius:50%;width:38px;height:38px;font-size:18px}
+.hero .icon-btn{background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+/* champ de recherche iOS */
+.search input{background:#E3E3E8;border:0;border-radius:10px;padding:9px 12px 9px 34px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2386868B' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:11px center}
+.search input:focus{border:0;box-shadow:0 0 0 3px rgba(10,132,255,.25)}
+/* filtres façon contrôle segmenté */
+.chip{background:#E8E8ED;border:0;color:var(--ink);font-weight:500}
+.chip.on{background:var(--ink);color:#fff}
+/* cartes */
+.card,.box,.fact,.timer{box-shadow:var(--sh);border-radius:var(--r)}
+.card .ph{background:linear-gradient(135deg,#E5F0FF,#D6E8FF)}
+.card h3{font-weight:600}
+.box h3{font-size:17px;font-weight:600}
+.fact{font-size:13px;color:var(--muted)} .fact b{color:var(--ink);font-weight:600}
+.badge{border-radius:6px;font-weight:600}
+/* boutons : bleu plein (principal), gris clair texte bleu (secondaire) */
+.btn{box-shadow:none;border-radius:12px;font-weight:600}
+.btn:not(.pri):not(.tm){background:#E8E8ED;color:var(--vert)}
+.btn.danger{background:#E8E8ED;color:var(--tomate)}
+.btn.pri{background:var(--vert)} .btn.pri:active{background:var(--vert2)}
+.btn.tm{background:var(--tm)} .btn.tm.sel{background:#fff;color:var(--tm);outline:2px solid var(--tm)}
+.btn.tm.off{background:#F0F0F2;color:#B0B0B5}
+.btn:active{opacity:.85}
+.pers{background:#F2F2F7;border-radius:10px}
+.pers button{background:#fff;color:var(--vert);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+/* listes groupées iOS */
+.ing{border-top:.5px solid var(--line)}
+.ing .q{color:var(--ink);font-weight:600}
+.sous{color:var(--muted);font-weight:600;font-size:12.5px;letter-spacing:.3px}
+.sec{color:var(--vert)}
+.step{border-top:.5px solid var(--line)}
+.step .num{background:var(--vert);font-size:13px}
+.astuce{background:#FFF8E1;border-left:0;border-radius:10px}
+.rg{background:var(--tm-pale);color:#0E6E80;border-radius:8px;font-weight:600}
+.note-tm{border-radius:10px}
+/* barre d'onglets iOS translucide */
+nav.bottom{background:rgba(249,249,249,.88);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid rgba(0,0,0,.15)}
+nav.bottom button{color:#8E8E93;font-size:11px;font-weight:500}
+nav.bottom button .i{filter:grayscale(1);opacity:.75}
+nav.bottom button.on{color:var(--vert);font-weight:600}
+nav.bottom button.on .i{filter:none;opacity:1}
+nav.bottom .cnt{background:var(--tomate)}
+/* mode cuisine */
+.cook{background:#FFFFFF} .cook.tmmode{background:#F4FAFB}
+.prog{background:#E5E5EA;height:4px}
+.cbody .bignum{color:var(--muted);letter-spacing:.6px;font-weight:600}
+.cook.tmmode .cbody .bignum{color:var(--tm)}
+.cbody .used span{background:#F2F2F7;color:var(--ink);font-weight:500}
+/* courses */
+.item{border-top:.5px solid var(--line)}
+.item input{accent-color:var(--vert);border-radius:50%}
+.item .qq{color:var(--ink);font-weight:600}
+.switch input:checked{background:#34C759}
+.mini button{background:#E8E8ED;border:0;color:var(--vert)}
+/* formulaires et feuilles */
+.in{background:#fff;border:.5px solid #D2D2D7;border-radius:10px}
+.in:focus{border-color:var(--vert);box-shadow:0 0 0 3px rgba(10,132,255,.2)}
+label.f{font-weight:600;text-transform:uppercase;font-size:12px;letter-spacing:.4px}
+.menu .sheet{border-radius:14px 14px 0 0;background:#F2F2F7}
+.menu .sheet button{background:#fff;color:var(--vert);text-align:center;font-weight:500}
+.cols > *,.detail > *{min-width:0}
+.toast{background:rgba(29,29,31,.92);border-radius:14px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
-<nav class="bottom" id="nav"><div class="in">
+<nav class="bottom" id="nav"><div class="nav-in">
   <button data-go="liste"><span class="i">📖</span>Recettes</button>
   <button data-go="courses"><span class="i">🛒</span>Courses<span class="cnt" id="cnt" hidden></span></button>
   <button data-go="reglages"><span class="i">📥</span>Importer</button>
@@ -601,10 +681,13 @@ function ingredientsDeLEtape(r, texte, f) {
   for (const i of r.ingredients || []) {
     const m = motsIng(i.nom); if (!m.length || !has(m[0])) continue;
     if (GENERIQUES.has(m[0]) && m.length > 1 && !has(m[1])) continue;   // « sauce satay » ≠ « sauce soja »
-    cand.push({i, tete: m[0], score: m.filter(has).length / m.length});
+    const n = m.filter(has).length;
+    cand.push({i, tete: m[0], score: n / m.length, n});
   }
-  const best = {}; for (const c of cand) best[c.tete] = Math.max(best[c.tete] || 0, c.score);
-  return cand.filter(c => c.score === best[c.tete]).map(c => c.i)
+  // à score égal, on garde l'ingrédient le plus précis (« gingembre moulu » plutôt que « gingembre »)
+  const val = c => c.score * 100 + c.n;
+  const best = {}; for (const c of cand) best[c.tete] = Math.max(best[c.tete] || 0, val(c));
+  return cand.filter(c => val(c) === best[c.tete]).map(c => c.i)
     .map(i => (fmtQ(i.quantite, i.unite, f) ? fmtQ(i.quantite, i.unite, f) + " " : "") + i.nom);
 }
 function pageCuisine(id) {
